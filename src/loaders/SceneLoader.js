@@ -15,7 +15,6 @@ THREE.SceneLoader = function () {
 	this.hierarchyHandlerMap = {};
 
 	this.addGeometryHandler( "ascii", THREE.JSONLoader );
-	this.addGeometryHandler( "binary", THREE.BinaryLoader );
 
 };
 
@@ -112,7 +111,8 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 		cameras: {},
 		lights: {},
 		fogs: {},
-		empties: {}
+		empties: {},
+		groups: {}
 
 	};
 
@@ -181,39 +181,32 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 				// meshes
 
-				if ( objJSON.type && ( objJSON.type in scope.hierarchyHandlerMap ) && objJSON.loading === undefined ) {
+				if ( objJSON.type && ( objJSON.type in scope.hierarchyHandlerMap ) ) {
 
-					var reservedTypes = { "type": 1, "url": 1, "material": 1,
-										  "position": 1, "rotation": 1, "scale" : 1,
-										  "visible": 1, "children": 1, "properties": 1,
-										  "skin": 1, "morph": 1, "mirroredLoop": 1, "duration": 1 };
+					if ( objJSON.loading === undefined ) {
 
-					var loaderParameters = {};
+						var reservedTypes = { "type": 1, "url": 1, "material": 1,
+											  "position": 1, "rotation": 1, "scale" : 1,
+											  "visible": 1, "children": 1, "properties": 1,
+											  "skin": 1, "morph": 1, "mirroredLoop": 1, "duration": 1 };
 
-					for ( var parType in objJSON ) {
+						var loaderParameters = {};
 
-						if ( ! ( parType in reservedTypes ) ) {
+						for ( var parType in objJSON ) {
 
-							loaderParameters[ parType ] = objJSON[ parType ];
+							if ( ! ( parType in reservedTypes ) ) {
+
+								loaderParameters[ parType ] = objJSON[ parType ];
+
+							}
 
 						}
 
-					}
+						material = result.materials[ objJSON.material ];
 
-					material = result.materials[ objJSON.material ];
+						objJSON.loading = true;
 
-					objJSON.loading = true;
-
-					var loader = scope.hierarchyHandlerMap[ objJSON.type ][ "loaderObject" ];
-
-					// OBJLoader
-
-					if ( loader.addEventListener ) {
-
-						loader.addEventListener( 'load', create_callback_hierachy( objID, parent, material, objJSON ) );
-						loader.load( get_url( objJSON.url, data.urlBaseType ) );
-
-					} else {
+						var loader = scope.hierarchyHandlerMap[ objJSON.type ][ "loaderObject" ];
 
 						// ColladaLoader
 
@@ -222,6 +215,7 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 							loader.load( get_url( objJSON.url, data.urlBaseType ), create_callback_hierachy( objID, parent, material, objJSON ) );
 
 						// UTF8Loader
+						// OBJLoader
 
 						} else {
 
@@ -249,10 +243,6 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 						scl = objJSON.scale;
 						mat = objJSON.matrix;
 						quat = objJSON.quaternion;
-
-						// turn off quaternions, for the moment
-
-						quat = 0;
 
 						// use materials from the model file
 						// if there is no material specified in the object
@@ -444,10 +434,6 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 					scl = objJSON.scale;
 					quat = objJSON.quaternion;
 
-					// turn off quaternions, for the moment
-
-					quat = 0;
-
 					object = new THREE.Object3D();
 					object.name = objID;
 					object.position.set( pos[0], pos[1], pos[2] );
@@ -481,6 +467,24 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 							var value = objJSON.properties[ key ];
 							object.properties[ key ] = value;
+
+						}
+
+					}
+
+					if ( objJSON.groups !== undefined ) {
+
+						for ( var i = 0; i < objJSON.groups.length; i ++ ) {
+
+							var groupID = objJSON.groups[ i ];
+
+							if ( result.groups[ groupID ] === undefined ) {
+
+								result.groups[ groupID ] = [];
+
+							}
+
+							result.groups[ groupID ].push( objID );
 
 						}
 
@@ -530,6 +534,9 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 		node.scale.set( s[0], s[1], s[2] );
 
+		// override children materials
+		// if object material was specified in JSON explicitly
+
 		if ( material ) {
 
 			node.traverse( function ( child )  {
@@ -540,7 +547,20 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 		}
 
+		// override children visibility
+		// with root node visibility as specified in JSON
+
+		var visible = ( obj.visible !== undefined ) ? obj.visible : true;
+
+		node.traverse( function ( child )  {
+
+			child.visible = visible;
+
+		} );
+
 		parent.add( node );
+
+		node.name = id;
 
 		result.objects[ id ] = node;
 		handle_objects();
@@ -569,7 +589,7 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 			var result;
 
-			// loaders which use EventTarget
+			// loaders which use EventDispatcher
 
 			if ( event.content ) {
 
@@ -995,7 +1015,7 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 			} else if ( parID === "combine" ) {
 
-				matJSON.parameters[ parID ] = ( matJSON.parameters[ parID ] == "MixOperation" ) ? THREE.MixOperation : THREE.MultiplyOperation;
+				matJSON.parameters[ parID ] = matJSON.parameters[ parID ] in THREE ? THREE[ matJSON.parameters[ parID ] ] : THREE.MultiplyOperation;
 
 			} else if ( parID === "vertexColors" ) {
 
@@ -1028,7 +1048,7 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 
 		if ( matJSON.parameters.normalMap ) {
 
-			var shader = THREE.ShaderUtils.lib[ "normal" ];
+			var shader = THREE.ShaderLib[ "normalmap" ];
 			var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
 			var diffuse = matJSON.parameters.color;
@@ -1150,12 +1170,6 @@ THREE.SceneLoader.prototype.parse = function ( json, callbackFinished, url ) {
 		result.scene.fog = result.fogs[ data.defaults.fog ];
 
 	}
-
-	color = data.defaults.bgcolor;
-	result.bgColor = new THREE.Color();
-	result.bgColor.setRGB( color[0], color[1], color[2] );
-
-	result.bgColorAlpha = data.defaults.bgalpha;
 
 	// synchronous callback
 

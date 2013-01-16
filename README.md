@@ -3,7 +3,7 @@ three.js
 
 #### JavaScript 3D library ####
 
-The aim of the project is to create a lightweight 3D library with a very low level of complexity — in other words, for dummies. The library provides &lt;canvas&gt;, &lt;svg&gt; and WebGL renderers.
+The aim of the project is to create a lightweight 3D library with a very low level of complexity — in other words, for dummies. The library provides &lt;canvas&gt;, &lt;svg&gt;, CSS3D and WebGL renderers.
 
 [Examples](http://mrdoob.github.com/three.js/) — [Documentation](http://mrdoob.github.com/three.js/docs/) — [Migrating](https://github.com/mrdoob/three.js/wiki/Migration) — [Help](http://stackoverflow.com/questions/tagged/three.js)
 
@@ -64,6 +64,71 @@ This code creates a scene, then creates a camera, adds the camera and cube to th
 ```
 
 ### Change log ###
+
+
+2013 01 15 - **r55** (406,462 KB, gzip: 96,542 KB)
+
+* Added `set()`, `identity()`, `copy()`, `multiplyScalar()`, `determinant()`, `getInverse()` and `clone()` to `Matrix3`. ([bhouston](http://github.com/bhouston))
+* Added a refactored `WebGLRenderer` under the `WebGLRenderer2` name (may become `WebGLRenderer` next release). ([gero3](http://github.com/gero3))
+* Optimised `Matrix4`'s `determinant()`. ([bhouston](http://github.com/bhouston))
+* Added `negate()` to `Plane`. ([bhouston](http://github.com/bhouston))
+* Added `containsPoint()` and `intersectsObject()` to `Frustum`. ([bhouston](http://github.com/bhouston))
+* Fixed `MeshNormalMaterial` rendering in `CanvasRenderer` and `SVGRenderer`. ([mrdoob](http://github.com/mrdoob))
+* Moved `Matrix*/Quaternion`'s `multiply*` to `Vector*`'s `.apply*`. ([mrdoob](http://github.com/mrdoob))
+* Added `MeshNormalMaterial` with `SmoothShading` support to `CanvasRenderer`. ([mrdoob](http://github.com/mrdoob))
+* Added `Edit / Clone` to the editor. ([mrdoob](http://github.com/mrdoob))
+* Fixes to `ArrowHelper`. ([bhouston](http://github.com/bhouston) and [WestLangley](http://github.com/WestLangley))
+* Improved `Geometry`'s `mergeVertices()`. ([bhouston](http://github.com/bhouston))
+* Improved `LatheGeometry`. ([bhouston](http://github.com/bhouston) and [WestLangley](http://github.com/WestLangley))
+* Added `insertPass` to `EffectComposer`. ([alteredq](http://github.com/alteredq))
+* Added support for `BufferGeometry` support to `Line`. ([arodic](http://github.com/arodic))
+* Added `intersectsSphere` to `Sphere`. ([Fox32](http://github.com/Fox32))
+* Added Tone Mapping to `WebGLDeferredRenderer`. ([alteredq](http://github.com/alteredq))
+* Made `updateMorphTargets` a public method of `Mesh`. ([jonobr1](http://github.com/jonobr1))
+* Added `add()`, `addColors()`, `addScalar()`, `multiply()` and `multiplyScalar()` to `Color`. ([mrdoob](http://github.com/mrdoob))
+* Renamed `Vector*/Matrix*/Quaternion`'s `add()/sub()/cross()...` to `addVectors()/subVectors()/crossVectors()...`. ([mrdoob](http://github.com/mrdoob))
+* Renamed `Vector*/Matrix*/Quaternion`'s `addSelf()/subSelf()/crossSelf()...` to `add()/sub()/cross()...`. ([mrdoob](http://github.com/mrdoob))
+* Moved `GeometryUtils`'s `explode()` and `tessellate()` to `ExplodeModifier` and `TessellateModifier`. ([mrdoob](http://github.com/mrdoob))
+* Moved `BinaryLoader` out of the lib to examples folder. ([mrdoob](http://github.com/mrdoob))
+* Added `OBJExporter`. ([mrdoob](http://github.com/mrdoob))
+* Implemented pinch gesture to `TrackballControls`. ([ericnoble](http://github.com/ericnoble) and [mrdoob](http://github.com/mrdoob))
+* Firefox support in `OrbitControls`.. ([mrdoob](http://github.com/mrdoob))
+* Added zbuffer to `SoftwareRenderer` and started adding material handling. ([rygorous](http://github.com/rygorous) and [mrdoob](http://github.com/mrdoob))
+* Moved `CanvasRenderer/SVGRenderer` x/y clipping to `Projector`. ([mrdoob](http://github.com/mrdoob))
+* Added `applyEuler()` and `applyAxisAngle()` in `Vector3`. ([WestLangley](http://github.com/WestLangley))
+* Improvements to `FirstPersonControls`. ([RommelVR](http://github.com/RommelVR))
+
+
+
+2012 12 25 - **r54** (411,352 KB, gzip: 98,639 KB)
+
+* Added nodejs, perl, python and ruby based localhost server. ([zz85](http://github.com/zz85))
+* Added support for alphaTest to `Sprite`. ([alteredq](http://github.com/alteredq))
+* Added `WebGLDeferredRenderer` with all sorts of goodness. ([mpanknin](http://github.com/mpanknin) and [alteredq](http://github.com/alteredq))
+* Changed `Sprite` to use `SpriteMaterial` instead of custom object. ([alteredq](http://github.com/alteredq))
+* Added `sourcemap` option to python and nodejs build systems. ([zz85](http://github.com/zz85) and [gero3](http://github.com/gero3))
+* Non-indexed `BufferGeometry`. ([benaadams](http://github.com/benaadams))
+* Added support for loading cubemap DDS textures. ([MiiBond](http://github.com/MiiBond))
+* Added manual mipmapping support to `Texture` and `DataTexture`. ([benaadams](http://github.com/benaadams) and [alteredq](http://github.com/alteredq))
+* Added style strings support `Color`. ([mrdoob](http://github.com/mrdoob))
+* Added new fbx converter. ([zfedoran](http://github.com/zfedoran))
+* Improvements to `SceneLoader`. ([RommelVR](http://github.com/RommelVR) and [alteredq](http://github.com/alteredq))
+* Added `Plane` class and implemented in `Frustum`. ([bhouston](http://github.com/bhouston))
+* Added `Box3`, `Sphere` math classes and implemented in `Geometry`. ([bhouston](http://github.com/bhouston))
+* Added bilinear filtered shadow map. ([MiiBond](http://github.com/MiiBond))
+* Added test framework. ([bhouston](http://github.com/bhouston))
+* Replaced `UV` with `Vector2`. ([mrdoob](http://github.com/mrdoob))
+* Renamed `Ray` to `Raycaster` and added new `Ray` math class. ([bhouston](http://github.com/bhouston))
+* Improvements to `CSS3DRenderer`. ([mrdoob](http://github.com/mrdoob), [benaadams](http://github.com/benaadams) and [zz85](http://github.com/zz85))
+* Implemented `.dispose()` to `Geometry`, `BufferGeometry`, `Texture`, `Material` and `WebGLRenderTarget` for deallocating from GPU. ([mrdoob](http://github.com/mrdoob) and [alteredq](http://github.com/alteredq))
+* Moved `SubdivisionModifier` out of the build to `examples/js/modifiers`. ([mrdoob](http://github.com/mrdoob))
+* Improvements to `ColladaLoader`. ([dgossow](http://github.com/dgossow))
+* Added Blender 2.65 exporter. ([tapio](http://github.com/tapio))
+* Added `.setMaterialIndex()` to `GeometryUtils`. ([gero3](http://github.com/gero3))
+* Added benchmark framework. ([bhouston](http://github.com/bhouston))
+* Fixed Blender scene exporter rotations. ([alteredq](http://github.com/alteredq) and [WestLangley](http://github.com/WestLangley))
+* Added `devicePixelRatio` support to `CanvasRenderer` and `WebGLRenderer`. ([mrdoob](http://github.com/mrdoob))
+
 
 2012 11 15 - **r53** (392,799 KB, gzip: 96,044 KB)
 
