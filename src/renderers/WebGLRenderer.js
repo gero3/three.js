@@ -563,7 +563,7 @@ function WebGLRenderer( parameters ) {
 
 	function releaseMaterialProgramReference( material ) {
 
-		var programInfo = properties.get( material ).program;
+		var programInfo = properties.get( material ).programs[0];
 
 		material.program = undefined;
 
@@ -1431,15 +1431,16 @@ function WebGLRenderer( parameters ) {
 
 		var code = programCache.getProgramCode( material, parameters );
 
-		var program = materialProperties.program;
+		var programs = materialProperties.programs;
 		var programChange = true;
 
-		if ( program === undefined ) {
+		if ( programs === undefined ) {
 
 			// new material
-			material.addEventListener( 'dispose', onMaterialDispose );
+            material.addEventListener('dispose', onMaterialDispose);
+            materialProperties.programs = {};
 
-		} else if ( program.code !== code ) {
+		} else if ( programs[0].code !== code ) {
 
 			// changed glsl or parameters
 			releaseMaterialProgramReference( material );
@@ -1503,10 +1504,9 @@ function WebGLRenderer( parameters ) {
 			// Computing code again as onBeforeCompile may have changed the shaders
 			code = programCache.getProgramCode( material, parameters );
 
-			program = programCache.acquireProgram( material, materialProperties.shader, parameters, code );
+			var program = programCache.acquireProgram( material, materialProperties.shader, parameters, code );
 
-			materialProperties.program = program;
-			material.program = program;
+            materialProperties.programs[0] = program;
 
 		}
 
@@ -1594,7 +1594,7 @@ function WebGLRenderer( parameters ) {
 
 		}
 
-		var progUniforms = materialProperties.program.getUniforms(),
+		var progUniforms = materialProperties.programs[0].getUniforms(),
 			uniformsList =
 				WebGLUniforms.seqWithValue( progUniforms.seq, uniforms );
 
@@ -1633,7 +1633,7 @@ function WebGLRenderer( parameters ) {
 
 		if ( material.needsUpdate === false ) {
 
-			if ( materialProperties.program === undefined ) {
+			if ( materialProperties.programs === undefined ) {
 
 				material.needsUpdate = true;
 
@@ -1672,7 +1672,7 @@ function WebGLRenderer( parameters ) {
 		var refreshMaterial = false;
 		var refreshLights = false;
 
-		var program = materialProperties.program,
+		var program = materialProperties.programs[0],
 			p_uniforms = program.getUniforms(),
 			m_uniforms = materialProperties.shader.uniforms;
 
