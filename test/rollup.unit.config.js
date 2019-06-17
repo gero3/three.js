@@ -1,3 +1,6 @@
+
+import istanbul from 'rollup-plugin-istanbul';
+
 function glsl() {
 
 	return {
@@ -28,7 +31,11 @@ export default [
 	{
 		input: 'test/three.editor.unit.js',
 		plugins: [
-			glsl()
+			glsl(),
+			istanbul({
+				include: ['editor/**/*.js'],
+				exclude: ['test/**/*.js']
+			})
 		],
 		// sourceMap: true,
 		output: [
@@ -46,7 +53,11 @@ export default [
 	{
 		input: 'test/three.example.unit.js',
 		plugins: [
-			glsl()
+			glsl(),
+			istanbul({
+				include: ['examples/**/*.js'],
+				exclude: ['test/**/*.js']
+			})
 		],
 		// sourceMap: true,
 		output: [
@@ -64,7 +75,11 @@ export default [
 	{
 		input: 'test/three.source.unit.js',
 		plugins: [
-			glsl()
+			glsl(),
+			istanbul({
+				include: ['src/**/*.js'],
+				exclude: ['test/**/*.js']
+			})
 		],
 		// sourceMap: true,
 		output: [
