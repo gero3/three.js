@@ -1,4 +1,4 @@
-<img src="icon.png" alt="three.js" width="60"/>three.js
+<img src="icon.png" alt="three.js" width="30"/>three.js
 ========
 
 [![NPM package][npm]][npm-url]
