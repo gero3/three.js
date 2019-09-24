@@ -96,5 +96,9 @@
       "build/three.module.js"
     ],
     "directories": {}
+  },
+  "dependencies": {
+    "esprima": "^4.0.1",
+    "esprima-walk": "^0.1.0"
   }
 }
