@@ -2,7 +2,7 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-var Storage = function ( useWebWorker ) {
+var Storage = function ( ) {
 
 
 	var name = 'threejs-editor';
@@ -84,63 +84,13 @@ var Storage = function ( useWebWorker ) {
 
 	};
 
-	if ( window.Worker ) {
 
-		var worker;
-		var requestID = 0;
-		var callbacks = {};
-
-		var onmessageWebWorker = function ( e ) {
-
-			if ( e.data && callbacks[ e.data.requestID ] ) {
-
-				callbacks[ e.data.requestID ]( e.data.data );
-				delete callbacks[ e.data.requestID ];
-
-			}
-
-		};
-
-		var initWebWorker = function ( callback ) {
-
-			worker = new Worker( "js/Storage.Worker.js" );
-			worker.onmessage = onmessageWebWorker;
-			callbacks[ ++ requestID ] = callback;
-			worker.postMessage( { "requestID": requestID, function: "initDatabase" } );
-
-		};
-
-		var getWebWorker = function ( callback ) {
-
-			callbacks[ ++ requestID ] = callback;
-			worker.postMessage( { "requestID": requestID, "function": "getDatabase" } );
-
-		};
-
-		var setWebWorker = function ( data ) {
-
-			worker.postMessage( { "requestID": ++ requestID, "function": "setDatabase", "data": data } );
-
-		};
-
-		var clearWebWorker = function ( ) {
-
-			worker.postMessage( { "requestID": ++ requestID, "function": "clearDatabase" } );
-
-		};
-
-	}
-
-	var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+	var indexedDB = self.indexedDB || self.mozIndexedDB || self.webkitIndexedDB || self.msIndexedDB;
 
 	if ( indexedDB === undefined ) {
 
 		console.warn( 'Storage: IndexedDB not available.' );
 		return { init: function () {}, get: function () {}, set: function () {}, clear: function () {} };
-
-	} else if ( useWebWorker ) {
-
-		return { init: initWebWorker, get: getWebWorker, set: setWebWorker, clear: clearWebWorker };
 
 	} else {
 
@@ -150,5 +100,47 @@ var Storage = function ( useWebWorker ) {
 
 };
 
-export { Storage };
+var storage;
+
+onmessage = function ( e ) {
+
+	if ( ! e.data ) {
+
+		console.warn( "No data sent" );
+
+	} else if ( e.data.function == "initDatabase" ) {
+
+		storage = new Storage();
+		storage.init( function () {
+
+			postMessage( { "requestID": e.data.requestID, function: "initDatabase" } );
+
+		} );
+
+	} else if ( e.data.function == "getDatabase" ) {
+
+		storage.get( function ( data ) {
+
+			postMessage( { "requestID": e.data.requestID, function: "getDatabase", data: data } );
+
+		} );
+
+	} else if ( e.data.function == "setDatabase" ) {
+
+		storage.set( e.data.data );
+
+	} else if ( e.data.function == "clearDatabase" ) {
+
+		storage.clear( );
+
+	} else {
+
+		console.error( "storage.worker has no function" );
+
+	}
+
+
+
+};
+
 
